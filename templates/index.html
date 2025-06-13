@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gmail Variant Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+        input, button { padding: 10px; margin: 5px 0; width: 100%; }
+        .variant { background: #f1f1f1; padding: 5px; margin: 2px 0; }
+    </style>
+</head>
+<body>
+    <h2>Gmail Variant Generator</h2>
+    <form method="post">
+        <input type="email" name="email" placeholder="example@gmail.com" required>
+        <input type="number" name="limit" placeholder="Limit (max 500)" max="500" required>
+        <button type="submit">Generate</button>
+    </form>
+
+    {% if variants %}
+        <h3>Showing {{variants|length}} variants for <b>{{email}}</b> (Limit: {{limit}})</h3>
+        <div>
+            {% for variant in variants %}
+                <div class="variant">{{ variant }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</body>
+</html>
