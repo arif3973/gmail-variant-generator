@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gmail Variant Generator</title>
   <style>
+    :root {
+      --main-color: #0af;
+    }
     * {
       box-sizing: border-box;
     }
@@ -26,7 +29,7 @@
       font-size: 1.2rem;
       font-weight: bold;
       background-color: #1f1f1f;
-      color: #0af;
+      color: var(--main-color);
       user-select: none;
       position: relative;
     }
@@ -44,7 +47,7 @@
       padding: 20px;
       background: #222;
       border-radius: 10px;
-      box-shadow: 0 0 20px #0af5;
+      box-shadow: 0 0 20px var(--main-color);
       transition: background 0.3s;
     }
     body.light main {
@@ -68,12 +71,12 @@
       transition: box-shadow 0.3s;
     }
     input[type="text"]:focus, input[type="number"]:focus {
-      box-shadow: 0 0 6px #0af;
+      box-shadow: 0 0 6px var(--main-color);
     }
     input[type="submit"] {
       padding: 10px 20px;
       border: none;
-      background: #0af;
+      background: var(--main-color);
       color: #fff;
       font-weight: bold;
       border-radius: 5px;
@@ -115,7 +118,7 @@
       background-color: #0af3;
     }
     button.copy-btn {
-      background-color: #0af;
+      background-color: var(--main-color);
       border: none;
       color: white;
       padding: 6px 12px;
@@ -142,18 +145,41 @@
     button#download-btn:hover {
       background-color: #080;
     }
-
-    .switch {
-      position: fixed;
-      top: 20px;
-      right: 20px;
+    .menu-button {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      cursor: pointer;
+      font-size: 24px;
+      user-select: none;
+    }
+    .theme-menu {
+      position: absolute;
+      top: 40px;
+      left: 20px;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+    }
+    .theme-color {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid white;
+    }
+    .dark-toggle {
       display: flex;
       align-items: center;
       gap: 8px;
-      user-select: none;
-      z-index: 1000;
+      color: #fff;
+      font-size: 0.9rem;
     }
-    .switch input[type="checkbox"] {
+    .dark-toggle input[type="checkbox"] {
       width: 40px;
       height: 20px;
       appearance: none;
@@ -164,10 +190,10 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    .switch input[type="checkbox"]:checked {
-      background: #0af;
+    .dark-toggle input[type="checkbox"]:checked {
+      background: var(--main-color);
     }
-    .switch input[type="checkbox"]::before {
+    .dark-toggle input[type="checkbox"]::before {
       content: "";
       position: absolute;
       width: 18px;
@@ -178,44 +204,8 @@
       background: #eee;
       transition: 0.3s;
     }
-    .switch input[type="checkbox"]:checked::before {
+    .dark-toggle input[type="checkbox"]:checked::before {
       left: 21px;
-    }
-    .switch label {
-      color: #eee;
-      font-weight: 600;
-    }
-    body.light .switch label {
-      color: #222;
-    }
-
-    .menu-button {
-      position: absolute;
-      top: 10px;
-      left: 20px;
-      cursor: pointer;
-      font-size: 24px;
-      user-select: none;
-    }
-
-    .theme-menu {
-      position: absolute;
-      top: 40px;
-      left: 20px;
-      background-color: #333;
-      padding: 10px;
-      border-radius: 8px;
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 1000;
-    }
-    .theme-color {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid white;
     }
 
     @keyframes fadeIn {
@@ -234,14 +224,13 @@
       <div class="theme-color" style="background:#ff9800" onclick="setTheme('#ff9800')"></div>
       <div class="theme-color" style="background:#9c27b0" onclick="setTheme('#9c27b0')"></div>
       <div class="theme-color" style="background:#03a9f4" onclick="setTheme('#03a9f4')"></div>
+      <div class="dark-toggle">
+        <label for="darkmode-toggle">Dark Mode</label>
+        <input type="checkbox" id="darkmode-toggle" checked />
+      </div>
     </div>
     <a href="https://t.me/arif_hasan11" target="_blank">Telegram ❤️ @arif_hasan11</a>
   </header>
-
-  <div class="switch">
-    <label for="darkmode-toggle">Dark Mode</label>
-    <input type="checkbox" id="darkmode-toggle" checked />
-  </div>
 
   <main>
     <form method="post" autocomplete="off">
