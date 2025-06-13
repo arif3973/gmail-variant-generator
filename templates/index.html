@@ -1,42 +1,281 @@
-from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-import os
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gmail Variant Generator</title>
+  <style>
+    /* ======= Basic Reset ======= */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #121212;
+      color: #eee;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    body.light {
+      background-color: #f4f4f4;
+      color: #222;
+    }
 
-app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+    header {
+      padding: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background-color: #1f1f1f;
+      color: #0af;
+      user-select: none;
+    }
+    body.light header {
+      background-color: #ddd;
+      color: #06c;
+    }
 
-@app.get("/", response_class=HTMLResponse)
-async def form_get(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "variants": None, "too_many": False})
+    main {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #222;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #0af5;
+      transition: background 0.3s;
+    }
+    body.light main {
+      background: #fff;
+      box-shadow: 0 0 15px #00a;
+    }
 
-def generate_variants(email, max_limit=1500):
-    try:
-        local_part, domain = email.split("@")
-    except ValueError:
-        return []
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"], input[type="number"] {
+      flex: 1 1 250px;
+      padding: 10px 15px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+      transition: box-shadow 0.3s;
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      box-shadow: 0 0 6px #0af;
+    }
 
-    variants = set()
+    input[type="submit"] {
+      padding: 10px 20px;
+      border: none;
+      background: #0af;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    input[type="submit"]:hover {
+      background: #08c;
+    }
 
-    def backtrack(s, pos):
-        if len(variants) >= max_limit:
-            return
-        if pos == len(local_part):
-            variants.add(s)
-            return
-        backtrack(s + local_part[pos].lower(), pos + 1)
-        backtrack(s + local_part[pos].upper(), pos + 1)
+    .warning {
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f44336cc;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 5px;
+      text-align: center;
+      user-select: none;
+      animation: fadeIn 0.8s ease forwards;
+    }
 
-    backtrack("", 0)
-    return [v + "@" + domain for v in variants]
+    ul {
+      list-style-type: none;
+      padding: 0;
+      max-height: 400px;
+      overflow-y: auto;
+      border-top: 1px solid #333;
+      margin-top: 10px;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid #333;
+      user-select: text;
+      transition: background-color 0.3s;
+    }
+    li:hover {
+      background-color: #0af3;
+    }
+    button.copy-btn {
+      background-color: #0af;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      user-select: none;
+    }
+    button.copy-btn:hover {
+      background-color: #08c;
+    }
 
-@app.post("/", response_class=HTMLResponse)
-async def form_post(request: Request, email: str = Form(...), limit: int = Form(...)):
-    max_limit = min(limit, 1500)
-    variants = generate_variants(email, max_limit=max_limit)
-    too_many = len(variants) >= max_limit
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "variants": variants,
-        "too_many": too_many
-    })
+    button#download-btn {
+      margin-bottom: 15px;
+      background-color: #0a0;
+      padding: 8px 20px;
+      border-radius: 5px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      user-select: none;
+      transition: background-color 0.3s;
+    }
+    button#download-btn:hover {
+      background-color: #080;
+    }
+
+    /* Dark mode toggle switch */
+    .switch {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+      z-index: 1000;
+    }
+    .switch input[type="checkbox"] {
+      width: 40px;
+      height: 20px;
+      appearance: none;
+      background: #555;
+      outline: none;
+      border-radius: 20px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .switch input[type="checkbox"]:checked {
+      background: #0af;
+    }
+    .switch input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      top: 1px;
+      left: 1px;
+      background: #eee;
+      transition: 0.3s;
+    }
+    .switch input[type="checkbox"]:checked::before {
+      left: 21px;
+    }
+    .switch label {
+      color: #eee;
+      font-weight: 600;
+    }
+    body.light .switch label {
+      color: #222;
+    }
+
+    @keyframes fadeIn {
+      0% {opacity: 0;}
+      100% {opacity: 1;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Gmail Variant Generator — by @arif_hasan11
+  </header>
+
+  <div class="switch">
+    <label for="darkmode-toggle">Dark Mode</label>
+    <input type="checkbox" id="darkmode-toggle" checked />
+  </div>
+
+  <main>
+    <form method="post" autocomplete="off">
+      <input
+        type="text"
+        name="email"
+        placeholder="Enter Gmail address"
+        required
+        autofocus
+      />
+      <input
+        type="number"
+        name="limit"
+        placeholder="How many variants? (max 1500)"
+        min="1"
+        max="1500"
+        required
+      />
+      <input type="submit" value="Generate" />
+    </form>
+
+    {% if too_many %}
+      <div class="warning">
+        Showing only {{ variants|length }} variants due to limit.
+      </div>
+    {% endif %}
+
+    {% if variants %}
+      <button id="download-btn">Download .txt</button>
+      <ul>
+        {% for v in variants %}
+          <li>
+            <span>{{ v }}</span>
+            <button class="copy-btn" onclick="copyToClipboard('{{ v }}')">
+              Copy
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </main>
+
+  <script>
+    // Copy text to clipboard
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied: " + text);
+      });
+    }
+
+    // Download all variants as txt
+    document.getElementById("download-btn")?.addEventListener("click", () => {
+      const variants = Array.from(document.querySelectorAll("ul li span")).map(
+        (el) => el.textContent
+      );
+      const blob = new Blob([variants.join("\n")], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "gmail_variants.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Dark mode toggle
+    const toggle = document.getElementById("darkmode-toggle");
+    toggle.addEventListener("change", () => {
+      document.body.classList.toggle("light", !toggle.checked);
+    });
+  </script>
+</body>
+</html>
