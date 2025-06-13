@@ -1,91 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gmail Variant Generator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      color: #333;
-      padding: 2rem;
-      text-align: center;
-    }
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+import os
 
-    input[type="text"],
-    input[type="number"] {
-      padding: 10px;
-      width: 300px;
-      margin: 10px auto;
-      display: block;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
-    input[type="submit"] {
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+@app.get("/", response_class=HTMLResponse)
+async def form_get(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "variants": None, "too_many": False})
 
-    input[type="submit"]:hover {
-      background: #0056b3;
-    }
+def generate_variants(email, max_limit=1500):
+    try:
+        local_part, domain = email.split("@")
+    except ValueError:
+        return []
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 20px;
-    }
+    variants = set()
 
-    li {
-      background: #eee;
-      padding: 8px;
-      margin-bottom: 5px;
-      border-radius: 4px;
-    }
+    def backtrack(s, pos):
+        if len(variants) >= max_limit:
+            return
+        if pos == len(local_part):
+            variants.add(s)
+            return
+        backtrack(s + local_part[pos].lower(), pos + 1)
+        backtrack(s + local_part[pos].upper(), pos + 1)
 
-    .warning {
-      color: #d9534f;
-      margin-top: 20px;
-      font-weight: bold;
-    }
+    backtrack("", 0)
+    return [v + "@" + domain for v in variants]
 
-    footer {
-      margin-top: 40px;
-      color: #777;
-      font-size: 0.9rem;
-    }
-  </style>
-</head>
-<body>
-  <h1>Gmail Variant Generator</h1>
-  <p>Created by <strong>@arif_hasan11</strong></p>
-
-  <form method="post" autocomplete="off">
-    <input type="text" name="email" placeholder="Enter Gmail address" required />
-    <input type="number" name="limit" placeholder="How many variants? (max 1500)" min="1" max="1500" required />
-    <input type="submit" value="Generate" />
-  </form>
-
-  {% if too_many %}
-    <div class="warning">
-      Showing only {{ variants|length }} variants due to limit.
-    </div>
-  {% endif %}
-
-  {% if variants %}
-    <ul>
-      {% for v in variants %}
-        <li>{{ v }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  <footer>&copy; 2025 Gmail Variant Tool | Made with ❤️</footer>
-</body>
-</html>
+@app.post("/", response_class=HTMLResponse)
+async def form_post(request: Request, email: str = Form(...), limit: int = Form(...)):
+    max_limit = min(limit, 1500)
+    variants = generate_variants(email, max_limit=max_limit)
+    too_many = len(variants) >= max_limit
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "variants": variants,
+        "too_many": too_many
+    })
