@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gmail Variant Generator</title>
   <style>
-    /* ======= Basic Reset ======= */
     * {
       box-sizing: border-box;
     }
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background-color: #121212;
       color: #eee;
       transition: background-color 0.3s, color 0.3s;
@@ -20,7 +20,6 @@
       background-color: #f4f4f4;
       color: #222;
     }
-
     header {
       padding: 20px;
       text-align: center;
@@ -29,12 +28,16 @@
       background-color: #1f1f1f;
       color: #0af;
       user-select: none;
+      position: relative;
     }
     body.light header {
       background-color: #ddd;
       color: #06c;
     }
-
+    header a {
+      color: inherit;
+      text-decoration: none;
+    }
     main {
       max-width: 600px;
       margin: 30px auto;
@@ -48,7 +51,6 @@
       background: #fff;
       box-shadow: 0 0 15px #00a;
     }
-
     form {
       display: flex;
       flex-wrap: wrap;
@@ -68,7 +70,6 @@
     input[type="text"]:focus, input[type="number"]:focus {
       box-shadow: 0 0 6px #0af;
     }
-
     input[type="submit"] {
       padding: 10px 20px;
       border: none;
@@ -82,7 +83,6 @@
     input[type="submit"]:hover {
       background: #08c;
     }
-
     .warning {
       margin-bottom: 15px;
       padding: 10px;
@@ -94,7 +94,6 @@
       user-select: none;
       animation: fadeIn 0.8s ease forwards;
     }
-
     ul {
       list-style-type: none;
       padding: 0;
@@ -128,7 +127,6 @@
     button.copy-btn:hover {
       background-color: #08c;
     }
-
     button#download-btn {
       margin-bottom: 15px;
       background-color: #0a0;
@@ -145,7 +143,6 @@
       background-color: #080;
     }
 
-    /* Dark mode toggle switch */
     .switch {
       position: fixed;
       top: 20px;
@@ -192,6 +189,35 @@
       color: #222;
     }
 
+    .menu-button {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      cursor: pointer;
+      font-size: 24px;
+      user-select: none;
+    }
+
+    .theme-menu {
+      position: absolute;
+      top: 40px;
+      left: 20px;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+    }
+    .theme-color {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid white;
+    }
+
     @keyframes fadeIn {
       0% {opacity: 0;}
       100% {opacity: 1;}
@@ -200,7 +226,16 @@
 </head>
 <body>
   <header>
-    Telegram ❤️ @arif_hasan11
+    <div class="menu-button" onclick="toggleMenu()">⋮</div>
+    <div class="theme-menu" id="themeMenu">
+      <div class="theme-color" style="background:#0af" onclick="setTheme('#0af')"></div>
+      <div class="theme-color" style="background:#f44336" onclick="setTheme('#f44336')"></div>
+      <div class="theme-color" style="background:#4caf50" onclick="setTheme('#4caf50')"></div>
+      <div class="theme-color" style="background:#ff9800" onclick="setTheme('#ff9800')"></div>
+      <div class="theme-color" style="background:#9c27b0" onclick="setTheme('#9c27b0')"></div>
+      <div class="theme-color" style="background:#03a9f4" onclick="setTheme('#03a9f4')"></div>
+    </div>
+    <a href="https://t.me/arif_hasan11" target="_blank">Telegram ❤️ @arif_hasan11</a>
   </header>
 
   <div class="switch">
@@ -210,21 +245,8 @@
 
   <main>
     <form method="post" autocomplete="off">
-      <input
-        type="text"
-        name="email"
-        placeholder="Enter Gmail address"
-        required
-        autofocus
-      />
-      <input
-        type="number"
-        name="limit"
-        placeholder="How many variants? (max 1500)"
-        min="1"
-        max="1500"
-        required
-      />
+      <input type="text" name="email" placeholder="Enter Gmail address" required autofocus />
+      <input type="number" name="limit" placeholder="How many variants? (max 1500)" min="1" max="1500" required />
       <input type="submit" value="Generate" />
     </form>
 
@@ -240,9 +262,7 @@
         {% for v in variants %}
           <li>
             <span>{{ v }}</span>
-            <button class="copy-btn" onclick="copyToClipboard('{{ v }}')">
-              Copy
-            </button>
+            <button class="copy-btn" onclick="copyToClipboard('{{ v }}')">Copy</button>
           </li>
         {% endfor %}
       </ul>
@@ -250,18 +270,14 @@
   </main>
 
   <script>
-    // Copy text to clipboard
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
         alert("Copied: " + text);
       });
     }
 
-    // Download all variants as txt
     document.getElementById("download-btn")?.addEventListener("click", () => {
-      const variants = Array.from(document.querySelectorAll("ul li span")).map(
-        (el) => el.textContent
-      );
+      const variants = Array.from(document.querySelectorAll("ul li span")).map(el => el.textContent);
       const blob = new Blob([variants.join("\n")], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -271,11 +287,23 @@
       URL.revokeObjectURL(url);
     });
 
-    // Dark mode toggle
     const toggle = document.getElementById("darkmode-toggle");
     toggle.addEventListener("change", () => {
       document.body.classList.toggle("light", !toggle.checked);
     });
+
+    function toggleMenu() {
+      const menu = document.getElementById("themeMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    }
+
+    function setTheme(color) {
+      document.querySelector(':root').style.setProperty('--main-color', color);
+      const buttons = document.querySelectorAll('.copy-btn, #download-btn, input[type="submit"]');
+      buttons.forEach(btn => {
+        btn.style.backgroundColor = color;
+      });
+    }
   </script>
 </body>
 </html>
