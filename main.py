@@ -5,14 +5,16 @@ import os
 
 app = FastAPI()
 
-# Jinja2 templates directory
 templates = Jinja2Templates(directory="templates")
 
 # Capitalization variant generator
 def generate_capitalization_variants(email: str):
-    try:
-        local_part, domain = email.split("@")
-    except ValueError:
+    if not email or "@" not in email:
+        return []
+
+    local_part, domain = email.split("@", 1)
+
+    if not local_part or not domain:
         return []
 
     variants = set()
@@ -29,7 +31,7 @@ def generate_capitalization_variants(email: str):
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request, "variants": [], "too_many": False})
 
 @app.post("/", response_class=HTMLResponse)
 async def generate(
@@ -37,7 +39,7 @@ async def generate(
     email: str = Form(...),
     limit: int = Form(...)
 ):
-    all_variants = generate_capitalization_variants(email)
+    all_variants = generate_capitalization_variants(email.strip())
     limited_variants = all_variants[:limit]
     too_many = len(all_variants) > limit
 
