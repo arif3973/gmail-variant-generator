@@ -5,47 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gmail Variant Generator</title>
   <style>
-    :root {
-      --main-color: #0af;
-    }
-    * {
-      box-sizing: border-box;
-    }
+    :root { --main-color: #0af; }
+    * { box-sizing: border-box; }
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #121212;
-      color: #eee;
-      transition: background-color 0.3s, color 0.3s;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0; padding: 0;
+      background: #121212; color: #eee;
+      transition: background 0.3s, color 0.3s;
     }
-    body.light {
-      background-color: #f4f4f4;
-      color: #222;
-    }
+    body.light { background: #f4f4f4; color: #222; }
+
     header {
-      padding: 20px;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      background-color: #1f1f1f;
-      color: var(--main-color);
-      user-select: none;
+      padding: 20px; text-align: center;
+      background: #1f1f1f; color: var(--main-color);
       position: relative;
     }
-    body.light header {
-      background-color: #ddd;
-      color: #06c;
+    header a { color: inherit; text-decoration: none; }
+    header .info-btn {
+      position: absolute; top: 20px; right: 20px;
+      background: none; border: none;
+      color: var(--main-color); font-size: 1.2rem;
+      cursor: pointer;
     }
-    header a {
-      color: inherit;
-      text-decoration: none;
-    }
+
     main {
-      max-width: 600px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #222;
+      max-width: 600px; margin: 30px auto;
+      padding: 20px; background: #222;
       border-radius: 10px;
       box-shadow: 0 0 20px var(--main-color);
       transition: background 0.3s;
@@ -54,244 +39,193 @@
       background: #fff;
       box-shadow: 0 0 15px #00a;
     }
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
+
+    form { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    input, button.copy-btn, button#download-btn {
+      padding: 10px; border-radius: 5px;
+      border: none; font-size: 1rem;
     }
     input[type="text"], input[type="number"] {
-      flex: 1 1 250px;
-      padding: 10px 15px;
-      border-radius: 5px;
-      border: none;
-      font-size: 1rem;
-      outline: none;
-      transition: box-shadow 0.3s;
-    }
-    input[type="text"]:focus, input[type="number"]:focus {
-      box-shadow: 0 0 6px var(--main-color);
+      flex: 1 1 250px; outline: none;
     }
     input[type="submit"] {
-      padding: 10px 20px;
-      border: none;
-      background: var(--main-color);
-      color: #fff;
-      font-weight: bold;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s;
+      background: var(--main-color); color: #fff;
+      cursor: pointer; transition: background 0.3s;
     }
     input[type="submit"]:hover {
       background: #08c;
     }
+
     .warning {
-      margin-bottom: 15px;
+      margin: 15px 0;
       padding: 10px;
-      background-color: #f44336cc;
+      background: #f44336cc;
       color: #fff;
-      font-weight: bold;
       border-radius: 5px;
       text-align: center;
-      user-select: none;
-      animation: fadeIn 0.8s ease forwards;
+      animation: fadeIn 0.8s;
     }
+
+    .status { margin-bottom: 10px; }
+
     ul {
-      list-style-type: none;
+      margin: 10px 0;
       padding: 0;
-      max-height: 400px;
+      list-style: none;
+      max-height: 300px;
       overflow-y: auto;
       border-top: 1px solid #333;
-      margin-top: 10px;
     }
     li {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 8px 10px;
+      padding: 8px;
       border-bottom: 1px solid #333;
-      user-select: text;
-      transition: background-color 0.3s;
+      transition: background 0.3s;
     }
-    li:hover {
-      background-color: #0af3;
-    }
+    li:hover { background: rgba(0, 175, 255, 0.1); }
     button.copy-btn {
-      background-color: var(--main-color);
-      border: none;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 5px;
+      background: var(--main-color);
+      color: #fff;
       cursor: pointer;
       transition: background 0.3s;
-      user-select: none;
     }
     button.copy-btn:hover {
-      background-color: #08c;
+      background: #08c;
     }
+
     button#download-btn {
-      margin-bottom: 15px;
-      background-color: #0a0;
-      padding: 8px 20px;
-      border-radius: 5px;
-      border: none;
-      color: white;
-      cursor: pointer;
+      background: #0a0; color: #fff;
       font-weight: bold;
-      user-select: none;
-      transition: background-color 0.3s;
-    }
-    button#download-btn:hover {
-      background-color: #080;
-    }
-    .menu-button {
-      position: absolute;
-      top: 10px;
-      left: 20px;
-      cursor: pointer;
-      font-size: 24px;
-      user-select: none;
-    }
-    .theme-menu {
-      position: absolute;
-      top: 40px;
-      left: 20px;
-      background-color: #333;
-      padding: 10px;
-      border-radius: 8px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 1000;
-    }
-    .theme-color {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid white;
-    }
-    .dark-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-      font-size: 0.9rem;
-    }
-    .dark-toggle input[type="checkbox"] {
-      width: 40px;
-      height: 20px;
-      appearance: none;
-      background: #555;
-      outline: none;
-      border-radius: 20px;
-      position: relative;
+      margin-bottom: 10px;
       cursor: pointer;
       transition: background 0.3s;
     }
-    .dark-toggle input[type="checkbox"]:checked {
+    button#download-btn:hover { background: #080; }
+
+    .toast {
+      position: fixed; bottom: 20px; left: 50%;
+      transform: translateX(-50%);
       background: var(--main-color);
+      color: #fff; padding: 10px 20px;
+      border-radius: 5px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 1000;
     }
-    .dark-toggle input[type="checkbox"]::before {
-      content: "";
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      top: 1px;
-      left: 1px;
-      background: #eee;
-      transition: 0.3s;
-    }
-    .dark-toggle input[type="checkbox"]:checked::before {
-      left: 21px;
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 600px) {
+      main { margin: 15px; padding: 15px; }
     }
 
     @keyframes fadeIn {
-      0% {opacity: 0;}
-      100% {opacity: 1;}
+      from { opacity: 0; } to { opacity: 1; }
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="menu-button" onclick="toggleMenu()">⋮</div>
-    <div class="theme-menu" id="themeMenu">
-      <div class="theme-color" style="background:#0af" onclick="setTheme('#0af')"></div>
-      <div class="theme-color" style="background:#f44336" onclick="setTheme('#f44336')"></div>
-      <div class="theme-color" style="background:#4caf50" onclick="setTheme('#4caf50')"></div>
-      <div class="theme-color" style="background:#ff9800" onclick="setTheme('#ff9800')"></div>
-      <div class="theme-color" style="background:#9c27b0" onclick="setTheme('#9c27b0')"></div>
-      <div class="theme-color" style="background:#03a9f4" onclick="setTheme('#03a9f4')"></div>
-      <div class="dark-toggle">
-        <label for="darkmode-toggle">Dark Mode</label>
-        <input type="checkbox" id="darkmode-toggle" checked />
-      </div>
-    </div>
     <a href="https://t.me/arif_hasan11" target="_blank">Telegram ❤️ @arif_hasan11</a>
+    <button class="info-btn" onclick="toggleInfo()">ℹ️</button>
   </header>
 
   <main>
-    <form method="post" autocomplete="off">
-      <input type="text" name="email" placeholder="Enter Gmail address" required autofocus />
-      <input type="number" name="limit" placeholder="How many variants? (max 1500)" min="1" max="1500" required />
+    <form id="variant-form" method="post" onsubmit="return validateForm()">
+      <input type="text" name="email" id="email" placeholder="Enter Gmail address" required />
+      <input type="number" name="limit" id="limit" placeholder="Max variants (max 1500)" min="1" max="1500" required />
       <input type="submit" value="Generate" />
     </form>
 
-    {% if too_many %}
-      <div class="warning">
-        Showing only {{ variants|length }} variants due to limit.
-      </div>
-    {% endif %}
+    <div class="status" id="status"></div>
+    <div id="results"></div>
 
-    {% if variants %}
-      <button id="download-btn">Download .txt</button>
-      <ul>
-        {% for v in variants %}
-          <li>
-            <span>{{ v }}</span>
-            <button class="copy-btn" onclick="copyToClipboard('{{ v }}')">Copy</button>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+    <button id="download-btn" style="display:none">Download .txt</button>
+    <button id="copy-all-btn" style="display:none">Copy All</button>
+
+    <div class="info" id="about" style="display:none;">
+      এই Gmail Variant Generator অ্যাপ তোমার দেওয়া Gmail থেকে সমস্ত uppercase‑lowercase কম্বিনেশন তৈরি করে দেখাবে। Copy, Download, Live Count ইত্যাদি সুবিধা আছে। 🔐
+    </div>
   </main>
 
+  <div class="toast" id="toast">Copied to clipboard!</div>
+
   <script>
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Copied: " + text);
-      });
+    const form = document.getElementById("variant-form");
+    const statusEl = document.getElementById("status");
+    const resultsEl = document.getElementById("results");
+    const downloadBtn = document.getElementById("download-btn");
+    const copyAllBtn = document.getElementById("copy-all-btn");
+    const toast = document.getElementById("toast");
+    const about = document.getElementById("about");
+
+    function showToast(msg="Copied!") {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2000);
     }
 
-    document.getElementById("download-btn")?.addEventListener("click", () => {
-      const variants = Array.from(document.querySelectorAll("ul li span")).map(el => el.textContent);
-      const blob = new Blob([variants.join("\n")], { type: "text/plain" });
+    function validateForm() {
+      const email = document.getElementById("email").value.trim();
+      if (!email.endsWith("@gmail.com")) {
+        alert("অনুগ্রহ করে @gmail.com ইমেইল ব্যবহার করুন");
+        return false;
+      }
+      return true;
+    }
+
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      statusEl.textContent = "Generating variants...";
+      resultsEl.innerHTML = "";
+      downloadBtn.style.display = copyAllBtn.style.display = "none";
+
+      const data = new FormData(form);
+      const resp = await fetch("/", { method: "POST", body: data });
+      const html = await resp.text();
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      const list = doc.querySelectorAll("ul li");
+      if (list.length == 0) {
+        resultsEl.innerHTML = "<p>No variants found.</p>";
+      } else {
+        statusEl.textContent = `Showing ${list.length} variants:`;
+        const ul = document.createElement("ul");
+        list.forEach(li => {
+          const newLi = document.createElement("li");
+          newLi.innerHTML = li.innerHTML;
+          ul.appendChild(newLi);
+        });
+        resultsEl.appendChild(ul);
+        downloadBtn.style.display = copyAllBtn.style.display = "inline-block";
+      }
+    });
+
+    downloadBtn.addEventListener("click", function() {
+      const texts = [...resultsEl.querySelectorAll("ul li span")].map(el => el.textContent);
+      const blob = new Blob([texts.join("\n")], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = "gmail_variants.txt";
-      a.click();
-      URL.revokeObjectURL(url);
+      a.href = url; a.download = "gmail_variants.txt";
+      a.click(); URL.revokeObjectURL(url);
     });
 
-    const toggle = document.getElementById("darkmode-toggle");
-    toggle.addEventListener("change", () => {
-      document.body.classList.toggle("light", !toggle.checked);
+    copyAllBtn.addEventListener("click", function() {
+      const texts = [...resultsEl.querySelectorAll("ul li span")].map(el => el.textContent);
+      navigator.clipboard.writeText(texts.join("\n")).then(() => showToast("All variants copied!"));
     });
 
-    function toggleMenu() {
-      const menu = document.getElementById("themeMenu");
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    }
+    resultsEl.addEventListener("click", function(e) {
+      if (e.target.matches("button.copy-btn")) {
+        const text = e.target.previousElementSibling.textContent;
+        navigator.clipboard.writeText(text).then(() => showToast());
+      }
+    });
 
-    function setTheme(color) {
-      document.querySelector(':root').style.setProperty('--main-color', color);
-      const buttons = document.querySelectorAll('.copy-btn, #download-btn, input[type="submit"]');
-      buttons.forEach(btn => {
-        btn.style.backgroundColor = color;
-      });
+    function toggleInfo() {
+      about.style.display = about.style.display === "block" ? "none" : "block";
     }
   </script>
 </body>
