@@ -1,99 +1,377 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Gmail Variant Generator - Minimalist Boxed</title>
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
-        .container {
-            background: white;
-            margin-top: 50px;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        input[type="text"] {
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 7px;
-        }
-        input[type="submit"] {
-            padding: 12px;
-            font-size: 16px;
-            background-color: #28a745;
-            border: none;
-            color: white;
-            font-weight: bold;
-            border-radius: 7px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        input[type="submit"]:hover {
-            background-color: #218838;
-        }
-        .variants {
-            margin-top: 25px;
-            font-family: monospace;
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            user-select: text;
-            text-align: left;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 13px;
-            color: #666;
-        }
-        a {
-            color: #28a745;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gmail Variant Generator - Dark Mode Toggle</title>
+
+<style>
+  :root {
+    --color-bg-light: #f0f2f5;
+    --color-bg-dark: #121212;
+    --color-text-light: #222;
+    --color-text-dark: #eee;
+    --color-primary: #1e90ff;
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-border-light: #ccc;
+    --color-border-dark: #555;
+  }
+
+  /* Default Light Theme */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-light);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark {
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-dark);
+  }
+
+  .container {
+    max-width: 600px;
+    width: 90%;
+    margin-top: 50px;
+    background: inherit;
+    padding: 20px 30px 40px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
+  }
+  body.dark .container {
+    box-shadow: 0 0 30px rgba(30, 144, 255, 0.3);
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    user-select: none;
+  }
+
+  /* Telegram username top bar */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    background-color: var(--color-primary);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 1000;
+    user-select: none;
+  }
+  body.dark .topbar {
+    background-color: #0b6fcc;
+  }
+  .topbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 5px;
+  }
+  .topbar a:hover {
+    text-decoration: underline;
+  }
+
+  form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+  input[type="text"] {
+    flex-grow: 1;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1.8px solid var(--color-border-light);
+    transition: border-color 0.3s;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+  body.dark input[type="text"] {
+    background-color: #222;
+    border-color: var(--color-border-dark);
+    color: var(--color-text-dark);
+  }
+  input[type="submit"] {
+    background-color: var(--color-primary);
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  input[type="submit"]:hover {
+    background-color: #0b6fcc;
+  }
+
+  /* Dark mode toggle switch */
+  .toggle-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+  }
+  .toggle-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+  }
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--color-border-light);
+    border-radius: 28px;
+    transition: background-color 0.4s;
+  }
+  body.dark .slider {
+    background-color: var(--color-border-dark);
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.4s;
+  }
+  input:checked + .slider {
+    background-color: var(--color-primary);
+  }
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+
+  /* Variants container */
+  .variants {
+    background-color: var(--color-bg-light);
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    font-family: monospace;
+    max-height: 300px;
+    overflow-y: auto;
+    transition: background-color 0.3s ease;
+  }
+  body.dark .variants {
+    background-color: #222;
+    box-shadow: 0 0 15px rgba(30, 144, 255, 0.2);
+  }
+
+  .variant-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeInUp 0.3s forwards;
+  }
+  .variant-row:nth-child(odd) {
+    background-color: rgba(30,144,255,0.05);
+  }
+  body.dark .variant-row:nth-child(odd) {
+    background-color: rgba(255,255,255,0.05);
+  }
+
+  @keyframes fadeInUp {
+    0% {opacity: 0; transform: translateY(10px);}
+    100% {opacity: 1; transform: translateY(0);}
+  }
+
+  .variant-text {
+    user-select: text;
+    font-size: 15px;
+  }
+
+  /* Copy button */
+  .copy-btn {
+    background-color: var(--color-primary);
+    border: none;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.25s;
+    margin-left: 12px;
+    user-select: none;
+  }
+  .copy-btn:hover {
+    background-color: #0b6fcc;
+  }
+  .copy-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Download Button */
+  .download-btn {
+    background-color: var(--color-success);
+    border: none;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 7px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 25px;
+    width: 100%;
+    transition: background-color 0.3s;
+    user-select: none;
+  }
+  .download-btn:hover {
+    background-color: #1e7e34;
+  }
+  .download-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 45px;
+    font-size: 14px;
+    text-align: center;
+    color: var(--color-text-light);
+    user-select: none;
+  }
+  body.dark .footer {
+    color: var(--color-text-dark);
+  }
+  .footer a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer a:hover {
+    text-decoration: underline;
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h2>Gmail Variant Generator</h2>
-        <form method="post">
-            <input type="text" name="email" placeholder="Enter Gmail address" required>
-            <input type="submit" value="Generate">
-        </form>
-        {% if variants %}
-            <div class="variants">
-                {% for v in variants %}
-                    {{ v }}<br>
-                {% endfor %}
-            </div>
-        {% endif %}
-        <div class="footer">
-            Made by <a href="https://t.me/arif_hasan11" target="_blank">@arif_hasan11</a>
-        </div>
+  <div class="topbar">
+    Telegram: <a href="https://t.me/arif_hasan11" target="_blank">@arif_hasan11</a>
+  </div>
+
+  <div class="container" style="margin-top: 70px;">
+    <div class="toggle-wrapper">
+      <label class="toggle-switch" title="Toggle Dark Mode">
+        <input type="checkbox" id="darkModeToggle" />
+        <span class="slider"></span>
+      </label>
     </div>
+
+    <h1>Gmail Variant Generator</h1>
+
+    <form method="post" autocomplete="off">
+      <input type="text" name="email" placeholder="Enter Gmail address" required autofocus />
+      <input type="submit" value="Generate" />
+    </form>
+
+    {% if variants %}
+    <div class="variants" id="variantsContainer">
+      {% for v in variants %}
+      <div class="variant-row" style="animation-delay: {{ loop.index0 * 0.05 }}s;">
+        <div class="variant-text">{{ v }}</div>
+        <button class="copy-btn" onclick="copyToClipboard('{{ v }}', this)">Copy</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button class="download-btn" id="downloadBtn" title="Download all variants as TXT">Download .txt</button>
+    {% endif %}
+
+    <div class="footer">
+      Made with ❤️ by <a href="https://t.me/arif_hasan11" target="_blank">@arif_hasan11</a>
+    </div>
+  </div>
+
+<script>
+  // Dark Mode toggle and persist in localStorage
+  const darkToggle = document.getElementById('darkModeToggle');
+  const bodyEl = document.body;
+
+  function setDarkMode(on) {
+    if (on) {
+      bodyEl.classList.add('dark');
+      darkToggle.checked = true;
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      bodyEl.classList.remove('dark');
+      darkToggle.checked = false;
+      localStorage.setItem('darkMode', 'false');
+    }
+  }
+
+  // Load saved mode
+  window.onload = () => {
+    const saved = localStorage.getItem('darkMode');
+    if (saved === 'true') {
+      setDarkMode(true);
+    } else {
+      setDarkMode(false);
+    }
+  };
+
+  darkToggle.addEventListener('change', e => {
+    setDarkMode(e.target.checked);
+  });
+
+  // Copy single variant text
+  function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = "Copied!";
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = "Copy";
+        btn.disabled = false;
+      }, 1500);
+    }).catch(() => {
+      alert("Copy failed! Please copy manually.");
+    });
+  }
+
+  // Download all variants as txt file
+  const downloadBtn = document.getElementById('downloadBtn');
+  if(downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      const variants = Array.from(document.querySelectorAll('.variant-text')).map(el => el.textContent.trim());
+      const blob = new Blob([variants.join('\n')], {type: 'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'gmail_variants.txt';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    });
+  }
+</script>
 </body>
 </html>
