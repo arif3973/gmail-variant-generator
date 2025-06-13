@@ -1,32 +1,50 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from typing import List
+from itertools import product
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
 
-def generate_variants(email: str, limit: int = 100):
-    local, domain = email.split("@")
-    unique_variants = set()
-    max_combinations = 2 ** (len(local) - 1)
-    limit = min(limit, max_combinations)
-    for i in range(max_combinations):
-        variant = ""
-        for j in range(len(local)):
-            variant += local[j]
-            if j < len(local) - 1 and (i >> j) & 1:
-                variant += "."
-        unique_variants.add(f"{variant}@{domain}")
-        if len(unique_variants) >= limit:
-            break
-    return list(unique_variants)
+def generate_case_variants(username: str, domain: str = "gmail.com", limit: int = 500) -> List[str]:
+    options = [(c.lower(), c.upper()) if c.isalpha() else (c,) for c in username]
+    variants = [''.join(p) + '@' + domain for p in product(*options)]
+    return variants[:limit]
 
 @app.get("/", response_class=HTMLResponse)
-async def form_page(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+async def home():
+    return """
+    <html>
+        <head>
+            <title>Gmail Variant Generator</title>
+        </head>
+        <body>
+            <h1>Gmail Variant Generator</h1>
+            <form action="/generate" method="post">
+                <label for="email">Enter Gmail:</label>
+                <input type="text" name="email" required>
+                <br><br>
+                <label for="limit">Limit (max 500):</label>
+                <input type="number" name="limit" value="500" min="1" max="500">
+                <br><br>
+                <input type="submit" value="Generate">
+            </form>
+        </body>
+    </html>
+    """
 
-@app.post("/", response_class=HTMLResponse)
-async def handle_form(request: Request, email: str = Form(...), limit: int = Form(...)):
-    variants = generate_variants(email, limit)
-    return templates.TemplateResponse("index.html", {"request": request, "variants": variants, "email": email, "limit": limit})
+@app.post("/generate")
+async def generate_variants(email: str = Form(...), limit: int = Form(500)):
+    if '@' not in email:
+        return {"error": "Invalid email format."}
+    
+    username, domain = email.split('@')
+
+    if domain.lower() != "gmail.com":
+        return {"error": "Only gmail.com domain is supported."}
+    
+    variants = generate_case_variants(username, domain, limit)
+    return {
+        "input": email,
+        "count": len(variants),
+        "variants": variants
+    }
