@@ -1,33 +1,25 @@
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+import os
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-MAX_LIMIT = 1500  # সর্বোচ্চ সীমা
-
 @app.get("/", response_class=HTMLResponse)
 async def form_get(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "variants": None,
-        "too_many": False
-    })
+    return templates.TemplateResponse("index.html", {"request": request, "variants": None, "too_many": False})
 
-def generate_variants(email: str, limit: int):
+def generate_variants(email, max_limit=1500):
     try:
         local_part, domain = email.split("@")
     except ValueError:
-        return [], False
+        return []
 
     variants = set()
-    too_many = False
 
     def backtrack(s, pos):
-        nonlocal too_many
-        if len(variants) >= limit:
-            too_many = len(variants) < (2 ** len(local_part))  # সীমা পেরিয়ে গেছে কিনা
+        if len(variants) >= max_limit:
             return
         if pos == len(local_part):
             variants.add(s)
@@ -36,15 +28,13 @@ def generate_variants(email: str, limit: int):
         backtrack(s + local_part[pos].upper(), pos + 1)
 
     backtrack("", 0)
-    variants_list = [v + "@" + domain for v in variants]
-    return variants_list, too_many
+    return [v + "@" + domain for v in variants]
 
 @app.post("/", response_class=HTMLResponse)
 async def form_post(request: Request, email: str = Form(...), limit: int = Form(...)):
-    # সীমা যেন ১৫০০ এর বেশি না হয়
-    final_limit = min(limit, MAX_LIMIT)
-    variants, too_many = generate_variants(email, final_limit)
-
+    max_limit = min(limit, 1500)
+    variants = generate_variants(email, max_limit=max_limit)
+    too_many = len(variants) >= max_limit
     return templates.TemplateResponse("index.html", {
         "request": request,
         "variants": variants,
